@@ -1,0 +1,81 @@
+diff -ru docs/aiyprojects-raspbian/src/aiy/voice/audio.py port/python/src/aiy/voice/audio.py
+--- docs/aiyprojects-raspbian/src/aiy/voice/audio.py
++++ port/python/src/aiy/voice/audio.py
+@@ -65,6 +65,8 @@
+ """
+ 
+ import contextlib
++import os
++import struct
+ import subprocess
+ import threading
+ import itertools
+@@ -212,6 +214,32 @@
+     finally:
+         process.terminate()
+         process.wait()
++        if filetype == 'wav':
++            _fix_wav_sizes(filename)
++
++
++def _fix_wav_sizes(filename):
++    """Sets the RIFF and data chunk sizes in a WAV header from the file's real size.
++
++    arecord 1.2.14 (Trixie) exits on SIGTERM without finishing the header, leaving the
++    placeholder sizes (about 2 GB) that make readers fail or allocate huge buffers.
++    """
++    with open(filename, 'r+b') as f:
++        size = os.fstat(f.fileno()).st_size
++        header = f.read(12)
++        if size < 12 or header[:4] != b'RIFF' or header[8:12] != b'WAVE':
++            return
++        f.seek(4)
++        f.write(struct.pack('<I', size - 8))
++        pos = 12
++        while pos + 8 <= size:
++            f.seek(pos)
++            chunk_id, chunk_size = struct.unpack('<4sI', f.read(8))
++            if chunk_id == b'data':
++                f.seek(pos + 4)
++                f.write(struct.pack('<I', size - pos - 8))
++                return
++            pos += 8 + chunk_size + (chunk_size & 1)
+ 
+ 
+ def play_wav_async(filename_or_data):
+diff -ru docs/aiyprojects-raspbian/src/aiy/voice/tts.py port/python/src/aiy/voice/tts.py
+--- docs/aiyprojects-raspbian/src/aiy/voice/tts.py
++++ port/python/src/aiy/voice/tts.py
+@@ -27,6 +27,9 @@
+ import tempfile
+ 
+ RUN_DIR = '/run/user/%d' % os.getuid()
++if not os.path.isdir(RUN_DIR):
++    # No login session (e.g. a system service): use the default temp dir.
++    RUN_DIR = None
+ 
+ def say(text, lang='en-US', volume=60, pitch=130, speed=100, device='default'):
+     """
+@@ -50,9 +53,9 @@
+     data = "<volume level='%d'><pitch level='%d'><speed level='%d'>%s</speed></pitch></volume>" % \
+            (volume, pitch, speed, text)
+     with tempfile.NamedTemporaryFile(suffix='.wav', dir=RUN_DIR) as f:
+-       cmd = 'pico2wave --wave %s --lang %s "%s" && aplay -q -D %s %s' % \
+-             (f.name, lang, data, device, f.name)
+-       subprocess.check_call(cmd, shell=True)
++        # Argument lists, not a shell: the text may contain quotes, $ or backticks.
++        subprocess.check_call(['pico2wave', '--wave', f.name, '--lang', lang, data])
++        subprocess.check_call(['aplay', '-q', '-D', device, f.name])
+ 
+ 
+ def _main():
+@@ -62,7 +65,7 @@
+     parser.add_argument('--pitch', type=int, default=130)
+     parser.add_argument('--speed', type=int, default=100)
+     parser.add_argument('--device', default='default')
+-    parser.add_argument('text', help='path to disk image file ')
++    parser.add_argument('text', help='the text to speak')
+     args = parser.parse_args()
+     say(args.text, lang=args.lang, volume=args.volume, pitch=args.pitch, speed=args.speed,
+         device=args.device)
+Only in port/python/src/examples/voice: voice_echo_demo.py

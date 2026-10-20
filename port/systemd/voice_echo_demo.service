@@ -1,0 +1,16 @@
+[Unit]
+Description=AIY Voice Echo Demo
+After=sound.target
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=5
+User=@USER@
+# lgpio (behind RPi.GPIO via rpi-lgpio) creates .lgd-nfy* files in the working
+# directory, so it must be writable by the user.
+WorkingDirectory=~
+ExecStart=/opt/aiy/venv/bin/python -u /opt/aiy/python/src/examples/voice/voice_echo_demo.py @ECHO_ARGS@
+
+[Install]
+WantedBy=multi-user.target
