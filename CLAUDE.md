@@ -10,7 +10,7 @@ continuing phase work. `port/DEPENDENCIES.md` records every change and test resu
 ## Commands
 
 There's no Makefile yet (phase 5). Run from the repo root on the Mac; the dev card is `pi@voice-kit.local`.
-- Regenerate the patch after editing `port/python/src/`: `port/make-patches.sh`
+- Regenerate the patch after editing `port/python/src/` (a hook does it for Claude's edits): `port/make-patches.sh`
 - Deploy the library: `rsync -a --delete --exclude __pycache__ --exclude '*.egg-info' port/python/ pi@voice-kit.local:/opt/aiy/python/`
 - Copy the tests: `rsync -a port/tests/ pi@voice-kit.local:voice-kit-port/tests/`
 - Silent device check: `ssh pi@voice-kit.local 'cd ~; /opt/aiy/venv/bin/python voice-kit-port/tests/hardware_check.py'` (add `--play`, `--button 15` with someone there)
@@ -32,6 +32,7 @@ There's no Makefile yet (phase 5). Run from the repo root on the Mac; the dev ca
 ### Decisions
 - [trixie-only](cards/trixie-only.md) — someone asks about Bookworm, 32-bit or a Pi Zero, or a change that only works on one OS release
 - [assistant-not-ported](cards/assistant-not-ported.md) — Google Assistant demos, or adding a voice assistant / speech backend (Claude, local STT, Home Assistant)
+- [standing-defaults](cards/standing-defaults.md) — before installing any Python dependency, or adding anything that stores data
 
 When you commit a change that adds non-obvious logic, settles an architectural choice,
 or makes a card above wrong, update or add the card in that commit and keep this index
@@ -41,7 +42,7 @@ card links to another.
 ## Conventions
 
 - `docs/aiyprojects-raspbian/` is an upstream snapshot: never edit it; port changes go in `port/python/`.
-- After editing `port/python/src/`, run `port/make-patches.sh` so `port/python.patch` matches, and commit both.
+- `port/python.patch` must match `port/python/src/`; commit both. A hook regenerates the patch after Claude's edits there; after other edits run `port/make-patches.sh`.
 - Python on the Pi only through the `/opt/aiy/venv` venv (`--system-site-packages`, `pip install --no-index`); dependencies come from apt.
 - `vendor/` is gitignored: baseline logs, recordings and the 2017 image backup (no credentials in it; keep it that way).
 - Ask before making sound on the kit, and keep it quiet in the evening. Leave the `lemic` card's `wyoming-satellite` setup as it is.
