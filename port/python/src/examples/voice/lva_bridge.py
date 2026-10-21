@@ -6,7 +6,8 @@ Connects to LVA's peripheral WebSocket API and:
   PULSE_QUICK, idle OFF, muted a faint BEACON_DARK, no connection BLINK_3,
   timer ringing BLINK;
 - uses the arcade button: a short press starts a conversation, or stops the
-  current one or a ringing timer; a long press (2 s) mutes/unmutes the mic.
+  current one or a ringing timer; a long press (2 s) mutes the mic, and any
+  press while muted unmutes it (LVA ignores start_listening while muted).
 
 LVA plays the sounds and talks to Home Assistant; this only drives the GPIOs.
 """
@@ -62,8 +63,10 @@ class Bridge:
         self._loop.call_soon_threadsafe(self._button, held)
 
     def _button(self, held):
-        if held >= self._long_press:
-            command = 'unmute_mic' if self._muted else 'mute_mic'
+        if self._muted:
+            command = 'unmute_mic'
+        elif held >= self._long_press:
+            command = 'mute_mic'
         elif self._state == 'timer_ringing':
             command = 'stop_timer_ringing'
         elif self._state in BUSY:

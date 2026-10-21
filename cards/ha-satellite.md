@@ -29,7 +29,7 @@ flowchart LR
 ## Bridge (port/python/src/examples/voice/lva_bridge.py)
 
 LED: wake word / listening ON, thinking BLINK, speaking PULSE_QUICK, idle OFF, muted BEACON_DARK, no LVA or HA connection BLINK_3, timer BLINK.
-Button: short press → `start_listening`, or `stop_pipeline` while busy, or `stop_timer_ringing`; held ≥ 2 s → `mute_mic` / `unmute_mic`.
+Button: short press → `start_listening`, or `stop_pipeline` while busy, or `stop_timer_ringing`; held ≥ 2 s → `mute_mic`; any press while muted → `unmute_mic` (LVA ignores `start_listening` while muted, which felt like a dead button in the first hand test).
 `websockets` (apt `python3-websockets` 15, `connect()` as an async iterator reconnects by itself). Button callbacks come from aiy.board's thread and go to
 the asyncio loop with `call_soon_threadsafe`. Test: `make test_bridge` (fake LVA server on port 16055, fake board; silent).
 

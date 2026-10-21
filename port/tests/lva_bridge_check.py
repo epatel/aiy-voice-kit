@@ -66,7 +66,7 @@ async def scenario(board, bridge, ws, received):
     await event('idle')
     press(2.5)                                   # long -> mute_mic
     await event('muted', {'muted': True})
-    press(2.5)                                   # long while muted -> unmute_mic
+    press(0.2)                                   # any press while muted -> unmute_mic
     await event('muted', {'muted': False})
     await asyncio.sleep(0.2)
 

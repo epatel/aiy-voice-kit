@@ -120,7 +120,8 @@ button, and speak. Home Assistant turns the speech into text, runs the command (
 | Button | Action |
 |---|---|
 | short press | start listening; while it's listening or speaking: stop; while a timer rings: stop the timer |
-| hold 2 s | mute / unmute the microphone |
+| hold 2 s | mute the microphone |
+| any press while muted | unmute |
 
 | LED | State |
 |---|---|
@@ -156,5 +157,5 @@ still `Master`.
   code for `google-cloud-speech` < 2.0 and isn't ported or tested.
 - **`record_file_async`** callers that stop arecord themselves get a WAV header with wrong sizes (arecord 1.2.14); `record_file` repairs it.
 - **32-bit Trixie** and **Bookworm** aren't tested. Bookworm will probably work but isn't a target.
-- **HA satellite:** Swedish speech-to-text with Whisper `small-int8` on a Pi 5 took ~5.7 s per question; the bridge's button and LED are tested with a
-  simulated LVA only, not by hand yet. Linux Voice Assistant calls itself experimental.
+- **HA satellite:** Swedish speech-to-text with Whisper `small-int8` on a Pi 5 took ~5.7 s per question; Linux Voice Assistant calls
+  itself experimental.

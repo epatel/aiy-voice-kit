@@ -149,4 +149,7 @@ devices, plus `lva_bridge.py` for the button and LED through LVA's peripheral AP
     user), a hand-built "Svenska" pipeline. "Okay Nabu, vad är klockan?" → "20:27" spoken on the kit; 5.7 s of it was Whisper.
   - Folded in: `port/pipewire/`, `linux-voice-assistant.service`, `lva_bridge.service`, `lva_bridge.py`, `port/tests/lva_bridge_check.py`, Makefile
     `test_bridge`/`lva_logs`. `make deploy ARGS=--ha-satellite` on the dev card (spike removed first): 3 min 16 s, reconnected to HA as the same device,
-    `status`, `test_hw`, `test_bridge` OK. Not yet: the real button/LED with LVA, a freshly flashed card with `--ha-satellite`, uninstall with the satellite.
+    `status`, `test_hw`, `test_bridge` OK.
+  - Hand test (user at the kit): short press → question answered, LED followed listening/thinking/speaking, 2 s hold muted. A 1.7 s press while
+    muted did nothing (LVA ignores `start_listening` while muted), so now any press while muted unmutes. Not yet: a freshly flashed card with
+    `--ha-satellite`, uninstall with the satellite.
