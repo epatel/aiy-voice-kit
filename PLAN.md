@@ -138,6 +138,6 @@ satellite and expose the button/LED to Home Assistant. The last one fits what `l
   `test_echo` all OK. Not done: 32-bit Trixie.
 - **Phase 6 (2026-10-21)**: `port/README.md` (SD card prep, install, what gets installed, using it, Known gaps) and `docs/README.md` (index of the snapshot
   for the Voice Kit). README, CLAUDE.md and cards were done earlier. Trimming the snapshot to its voice parts is left to you (the auto-mode check blocks
-  deleting under `docs/aiyprojects-raspbian/`). No GitHub repo yet. Found on the way: `Master` is missing on a fresh install, so `make test_play` failed;
+  deleting under `docs/aiyprojects-raspbian/`). Published 2026-10-21 as the public repo https://github.com/epatel/aiy-voice-kit. Found on the way: `Master` is missing on a fresh install, so `make test_play` failed;
   fixed with `aiy-voice-volume.service`, after which `test_play` worked through the speaker. Decision 2 (sharing with wyoming): nothing in the
   install blocks it, since `default` is dmix/dsnoop; wyoming would need `--mic-command 'arecord -D default …'`. Still undecided, not needed for this card.
