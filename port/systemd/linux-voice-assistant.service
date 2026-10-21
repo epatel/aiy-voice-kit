@@ -1,0 +1,20 @@
+[Unit]
+Description=Linux Voice Assistant (Home Assistant voice satellite)
+# PipeWire runs in the user's session, started at boot by linger.
+After=network-online.target sound.target user@@UID@.service
+Wants=network-online.target user@@UID@.service
+
+[Service]
+Type=simple
+User=@USER@
+WorkingDirectory=@LVA_DIR@
+Environment=XDG_RUNTIME_DIR=/run/user/@UID@
+Environment=PULSE_SERVER=/run/user/@UID@/pulse/native
+# Wait up to 60 s for pipewire-pulse to answer.
+ExecStartPre=/bin/sh -c 'for i in $$(seq 60); do pactl info >/dev/null 2>&1 && exit 0; sleep 1; done; echo "PipeWire not running" >&2; exit 1'
+ExecStart=@LVA_DIR@/script/run --name @NAME@ --audio-input-device "Voice HAT mics (x4 gain)" --audio-input-channels 1 --audio-output-device pulse/aiy_voicehat_out --wake-model @WAKE_MODEL@ --preferences-file @LVA_DIR@/preferences.json
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

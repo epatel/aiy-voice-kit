@@ -4,14 +4,14 @@
 
 A port of Google's AIY Voice Kit v1 software (Raspberry Pi 3 B + Voice HAT: I2S mics, amp, arcade button with LED) to Raspberry Pi OS Lite **Trixie** 64-bit
 (kernel 6.18, Python 3.13). The kernel side is stock: the in-tree `googlevoicehat-soundcard` overlay. The work is an ALSA config, the Voice HAT parts of the
-`aiy` Python library in a venv, a push-to-talk demo service, and install scripts. `PLAN.md` holds the phases, decisions and progress; read it when
+`aiy` Python library in a venv, a push-to-talk demo service, an optional Home Assistant voice satellite, and install scripts. `PLAN.md` holds the phases, decisions and progress; read it when
 continuing phase work. `port/DEPENDENCIES.md` records every change and test result. `README.md` and `port/README.md` (install guide, known gaps) are for people.
 
 ## Commands
 
 Run from the repo root on the Mac; `make` alone shows the numbered menu. `HOST` defaults to the dev card `pi@voice-kit.local`.
 - Install/update the Pi: `make deploy` (`ARGS="--echo-service"` etc. go to `port/install.sh`), then `make reboot` if it says so
-- Silent checks: `make status test_hw test_echo`. With someone at the kit: `make test_play`, `make test_button`, `make say TEXT="…"`
+- Silent checks: `make status test_hw test_echo test_bridge`. Satellite logs: `make lva_logs`. With someone at the kit: `make test_play`, `make test_button`, `make say TEXT="…"`
 - Regenerate `port/python.patch`: `make patches` (a hook does it after Claude's edits to `port/python/src/`)
 - Check the agent docs: `make check_docs`. Remove everything from the Pi: `make uninstall`
 
@@ -25,13 +25,14 @@ Run from the repo root on the Mac; `make` alone shows the numbered menu. `HOST` 
 - [python-library](cards/python-library.md) — editing anything in port/python, the upstream patch, venv/apt dependencies, arecord/aplay behaviour in aiy.voice, tts, cloudspeech
 
 ### Features
+- [ha-satellite](cards/ha-satellite.md) — the Home Assistant voice satellite (--ha-satellite): Linux Voice Assistant, PipeWire over our ALSA devices, lva_bridge button/LED, the HA pipeline (Whisper/Piper, Swedish)
 - [echo-demo](cards/echo-demo.md) — the push-to-talk echo demo or its systemd service, button press/release timing, LED states
 - [install-and-deploy](cards/install-and-deploy.md) — changing install.sh/deploy.sh/uninstall.sh or the Makefile, what install touches on the Pi (config.txt, asound.conf, /opt/aiy, the service), re-runs and uninstall
 - [testing-on-device](cards/testing-on-device.md) — before running anything on the Pi: which card is in it, hosts and host keys, test scripts, ssh/pkill/grep traps, when sound is OK
 
 ### Decisions
 - [trixie-only](cards/trixie-only.md) — someone asks about Bookworm, 32-bit or a Pi Zero, or a change that only works on one OS release
-- [assistant-not-ported](cards/assistant-not-ported.md) — Google Assistant demos, or adding a voice assistant / speech backend (Claude, local STT, Home Assistant)
+- [assistant-not-ported](cards/assistant-not-ported.md) — Google Assistant demos, or why the voice assistant is an HA satellite and not something else (Claude API, local STT, wyoming)
 - [standing-defaults](cards/standing-defaults.md) — before installing any Python dependency, or adding anything that stores data
 
 When you commit a change that adds non-obvious logic, settles an architectural choice,

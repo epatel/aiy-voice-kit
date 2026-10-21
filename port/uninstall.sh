@@ -1,5 +1,6 @@
 #!/bin/bash
-# Removes what install.sh added. Apt packages and group memberships are left as they are.
+# Removes what install.sh added. Apt packages, group memberships and the user's
+# linger setting (from --ha-satellite) are left as they are.
 #
 #   sudo ./uninstall.sh
 set -euo pipefail
@@ -7,10 +8,16 @@ set -euo pipefail
 [[ $EUID -eq 0 ]] || { echo "run with sudo" >&2; exit 1; }
 CONFIG_TXT=/boot/firmware/config.txt
 
-systemctl disable --now voice_echo_demo.service aiy-voice-volume.service 2>/dev/null || true
-rm -f /etc/systemd/system/voice_echo_demo.service /etc/systemd/system/aiy-voice-volume.service
+systemctl disable --now voice_echo_demo.service aiy-voice-volume.service \
+  linux-voice-assistant.service lva_bridge.service 2>/dev/null || true
+rm -f /etc/systemd/system/voice_echo_demo.service /etc/systemd/system/aiy-voice-volume.service \
+  /etc/systemd/system/linux-voice-assistant.service /etc/systemd/system/lva_bridge.service
 systemctl daemon-reload
 
+# PipeWire goes back to opening the sound cards itself at the next restart or reboot.
+rm -f /etc/pipewire/pipewire.conf.d/51-aiy-voicehat.conf /etc/wireplumber/wireplumber.conf.d/51-aiy-voicehat.conf
+
+# Includes the Linux Voice Assistant checkout and its venv.
 rm -rf /opt/aiy
 
 if [[ -f /etc/asound.conf.orig-aiy ]]; then

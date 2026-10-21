@@ -26,6 +26,7 @@ It needs SSH key login and passwordless sudo.
 | `/etc/asound.conf` | `port/alsa/asound.conf`. A foreign one is saved as `.orig-aiy`; ours is recognised by its "AIY Voice HAT" header | restored or removed |
 | `/opt/aiy/python`, `/opt/aiy/venv` | tar copy without `__pycache__`/egg-info, venv with `--system-site-packages`, `pip install --no-index --no-build-isolation -e`, then an import check | removed |
 | `voice_echo_demo.service` | `@USER@` and `@ECHO_ARGS@` filled in with sed | disabled and removed |
+| `--ha-satellite` only | apt `pipewire wireplumber pipewire-pulse pulseaudio-utils git build-essential python3-dev libmpv-dev avahi-utils python3-websockets`; `/etc/pipewire/pipewire.conf.d/51-aiy-voicehat.conf` + `/etc/wireplumber/wireplumber.conf.d/51-aiy-voicehat.conf`; linger; LVA clone + `.venv` in `/opt/aiy/linux-voice-assistant`; `linux-voice-assistant.service` (`@USER@ @UID@ @LVA_DIR@ @NAME@ @WAKE_MODEL@`) and `lva_bridge.service` | services, configs and `/opt/aiy` removed; packages and linger stay |
 | `aiy-voice-volume.service` | oneshot, enabled; creates the softvol `Master` (1 s of silence, then 30 %) when it's missing; run at once if the card is up. `@VOLUME@` is `30%%` (systemd's escape for `%`) | disabled and removed |
 
 The firmware rejects the HAT EEPROM's device tree, so the overlay line is required. A reboot is needed after the first install. install.sh says so when it
@@ -37,6 +38,8 @@ changed `config.txt` or `sndrpigooglevoi` isn't in `aplay -l`.
 - `--echo-service` / `--no-echo-service`: with neither, a re-run keeps the service's enabled state and its `ExecStart` arguments, and new installs are disabled.
   When enabled with no reboot pending, the service is restarted so new code runs.
 - `--echo-args "…"`: passed to `voice_echo_demo.py`, sed-escaped (`\`, `&`, `|`).
+- `--ha-satellite` / `--no-ha-satellite`: same keep-the-state rule. `--no-ha-satellite` only disables the two services. `--ha-name NAME` (letters, digits,
+  hyphens; kept from the last install, else the hostname). The satellite and the echo demo can't both be enabled; install.sh dies before changing anything.
 
 ## Makefile
 

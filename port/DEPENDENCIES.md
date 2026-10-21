@@ -12,6 +12,20 @@ Each finding is marked by how it was checked:
 - **C**: read in the upstream source. That's `aiyprojects-raspbian`, vendored at `../vision-kit/docs/aiyprojects-raspbian/` and to be copied into this repo's `docs/`.
 - **?**: not yet checked; confirm on the device (phase 2 or 3).
 
+## Status: Phase 7 Home Assistant voice satellite (2026-10-21)
+
+- **Linux Voice Assistant** (`github.com/OHF-Voice/linux-voice-assistant`, commit `b49fd8dc`, 2026-09-29; `wyoming-satellite` was archived 2026-01-27 and
+  points to it). ESPHome protocol on port 6053, peripheral WebSocket API on 6055. Python deps from **PyPI** into its own venv via `script/setup`
+  (`aioesphomeapi 45.3.1`, `pymicro-wakeword`, `pyopen-wakeword`, `python-mpv`, `soundcard`, `webrtc-noise-gain`, `websockets 12`…); all installed
+  as aarch64 wheels on the Pi 3 B, no long builds. Footprint: 168 MB venv. Runtime: about 4 % of one core and 120 MB RSS while listening.
+- **apt** (`--no-install-recommends`): `pipewire 1.4.2`, `wireplumber 0.5.8`, `pipewire-pulse`, `pulseaudio-utils`, `libmpv-dev 0.40` (pulls ~350 packages),
+  `git`, `build-essential`, `python3-dev`, `avahi-utils`, and `python3-websockets 15` for the bridge. **Not** `pipewire-alsa`: ALSA `default` stays ours.
+- **PipeWire**: WirePlumber would open the HAT as `alsa_card.platform-soc_sound` (and HDMI) directly, bypassing `Master` and the mic gain. Disabled by a
+  `monitor.alsa.rules` entry; two `api.alsa.pcm.sink/source` adapter nodes over `plug:softvol` / `plug:micboost` instead. `parecord` through PipeWire
+  and `arecord -D default` at the same time: both worked. User session via `loginctl enable-linger`; the system unit waits for `pactl info`.
+- **Bridge**: `lva_bridge.py` (aiy.board + websockets). `port/tests/lva_bridge_check.py` (fake LVA server, fake board): LED states and commands ALL OK.
+- **Home Assistant side** (not installed by this repo): see `cards/ha-satellite.md`.
+
 ## Status: Phase 5 install scripts (2026-10-21)
 
 - **`port/install.sh`** (run with sudo from `~/voice-kit-port`; `deploy.sh` copies `port/` there first). apt: `alsa-utils python3-venv python3-setuptools

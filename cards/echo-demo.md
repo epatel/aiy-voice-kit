@@ -18,7 +18,8 @@ Options: `--min_seconds`, `--max_seconds` (15), `--greeting TEXT` (said once at 
 
 - Each recording loses its first ~0.25 s (arecord start-up) and begins with the ~200 ms mic thump, so the start of the first word can be cut. A fix would keep one
   `Recorder` running with a short ring buffer.
-- It holds the button and LED GPIOs, so stop it before other tests that use them.
+- It holds the button and LED GPIOs, so stop it before other tests that use them. For the same reason it can't be enabled together with the HA
+  satellite's `lva_bridge` (install.sh refuses).
 
 ## Service
 

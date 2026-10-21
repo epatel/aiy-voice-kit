@@ -1,24 +1,30 @@
 # assistant-not-ported
 
-Decision (2026-10-21): Google Assistant code from the AIY library is not ported, and what replaces it is deferred.
+Decision (2026-10-21): Google Assistant code from the AIY library is not ported. Its replacement is a **Home Assistant voice satellite**
+(Linux Voice Assistant + a button/LED bridge, `install.sh --ha-satellite`).
 
 ## The choice
 
-Leave `aiy/assistant/` and the `assistant_library_*` / `assistant_grpc_demo*` examples out of `port/python/`, and list them as a known gap.
-Hardware and local audio come first.
+Leave `aiy/assistant/` and the `assistant_library_*` / `assistant_grpc_demo*` examples out of `port/python/`. For a voice assistant, the kit becomes an
+HA satellite: wake word on the Pi, and HA's Assist pipeline does speech-to-text, home control or an LLM for general questions, and TTS. The language
+(Swedish for this user) and the "smartness" are both set in HA, not on the Pi.
 
 ## Alternatives considered
 
 - Port `aiy.assistant.grpc` to the Embedded Assistant API anyway.
-- Replace it now with: the Claude API (button → speech-to-text → Claude → TTS), fully local (Vosk or whisper.cpp + Piper), or a Wyoming satellite that hands
-  the button/LED to Home Assistant (what the old `lemic` card already does).
+- `wyoming-satellite`, as the old `lemic` card runs: archived January 2026, no button/LED support.
+- Our own push-to-talk client for HA's Assist websocket API: no wake word, more code to own. Kept as the fallback if LVA stops working on a Pi 3 B.
+- The Claude API directly (button → speech-to-text → Claude → TTS): needs a cloud speech-to-text and an API key on the device, and no home control.
+- Fully local on the Pi (Vosk or whisper.cpp + Piper): the Pi 3 B is too slow.
 
 ## Why this won
 
 - `google-assistant-library` was an armv7 binary never built for Python > 3.7 or arm64, and the Assistant SDK service it needs is shut down. Nothing to port.
-- The user chose "decide later": a replacement needs product choices (accounts, cloud vs. local, Home Assistant) that the hardware port doesn't.
+- Linux Voice Assistant is maintained (by the Open Home Foundation), runs well on the Pi 3 B (about 4 % of one core while listening), and has a peripheral
+  API, so the kit's button and LED work without changing it.
+- The user already runs Home Assistant, and HA can use an LLM (Claude, OpenAI, …) as its conversation agent, so general questions come for free.
 
 ## When to revisit
 
-Once phases 0–6 are done, or when the user picks a voice backend. Then add a new example on top of `aiy.voice.audio` + `aiy.board` rather than reviving
-`aiy.assistant`.
+If LVA's API or install changes in a way the pinned commit can't absorb, or if the user wants the kit to work without HA. Then the push-to-talk client
+on top of `aiy.voice.audio` + `aiy.board` is the next option.

@@ -78,4 +78,5 @@ diff -ru docs/aiyprojects-raspbian/src/aiy/voice/tts.py port/python/src/aiy/voic
      args = parser.parse_args()
      say(args.text, lang=args.lang, volume=args.volume, pitch=args.pitch, speed=args.speed,
          device=args.device)
+Only in port/python/src/examples/voice: lva_bridge.py
 Only in port/python/src/examples/voice: voice_echo_demo.py

@@ -1,0 +1,16 @@
+[Unit]
+Description=AIY Voice HAT button and LED for Linux Voice Assistant
+After=linux-voice-assistant.service
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=5
+User=@USER@
+# lgpio (behind RPi.GPIO via rpi-lgpio) creates .lgd-nfy* files in the working
+# directory, so it must be writable by the user.
+WorkingDirectory=~
+ExecStart=/opt/aiy/venv/bin/python -u /opt/aiy/python/src/examples/voice/lva_bridge.py
+
+[Install]
+WantedBy=multi-user.target

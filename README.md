@@ -4,10 +4,11 @@ Goal: run the [Google AIY Voice Kit v1](https://aiyprojects.withgoogle.com/voice
 a mono amplifier and an arcade button with LED) on **Raspberry Pi OS Lite Trixie** (kernel 6.18, Python 3.13), instead of Google's 2017
 image (Raspbian Jessie, pi-gen 2017-07-05, Python 3.4).
 
-Status (2026-10-21): **phases 0–6 done** (see [`PLAN.md`](PLAN.md)).
+Status (2026-10-21): **phases 0–7 done** (see [`PLAN.md`](PLAN.md)).
 - On Trixie 64-bit the Voice HAT records and plays through the stock kernel overlay. The ALSA config gives volume, mic gain and shared access.
 - The `aiy` Python library's Voice HAT parts (button, LED, audio, text-to-speech) run in a venv. Two Trixie breaks are fixed.
 - A push-to-talk echo demo can run at boot.
+- Or the kit becomes a **Home Assistant voice satellite** ("Okay Nabu", or the button), replacing the shut-down Google Assistant; tested in Swedish.
 - `make deploy` sets up a card from the Mac in one step; `make uninstall` reverses it.
 
 Speaker playback is checked by ear; the real button still needs a check by hand.
@@ -21,7 +22,7 @@ Speaker playback is checked by ear; the real button still needs a check by hand.
 | Recording to WAV | `arecord`, stopped with SIGTERM | arecord 1.2.14 leaves a broken WAV header on SIGTERM; the library now repairs it |
 | Python | 3.4, system pip, RPi.GPIO | 3.13, venv required (PEP 668), RPi.GPIO through `python3-rpi-lgpio` |
 | Text-to-speech | `pico2wave` | Still in Debian non-free (enabled in the image); `tts.say` quoting fixed |
-| Google Assistant | Assistant SDK / library | **Shut down.** Not ported; a replacement is a later decision |
+| Google Assistant | Assistant SDK / library | **Shut down.** Replaced by a Home Assistant voice satellite (Linux Voice Assistant) with the button and LED |
 
 ## Layout
 
@@ -34,7 +35,8 @@ Speaker playback is checked by ear; the real button still needs a check by hand.
 | `port/python/` | The Voice HAT parts of Google's `aiy` library, with this port's fixes (`port/python.patch` is the diff against upstream) |
 | `Makefile` | Numbered menu (`make`) for deploy, status, tests, patches, uninstall. `HOST=` picks the Pi |
 | `port/install.sh`, `deploy.sh`, `uninstall.sh` | Install on the Pi, copy + install from the Mac, remove |
-| `port/systemd/` | `voice_echo_demo.service` |
+| `port/systemd/` | `voice_echo_demo.service`, `aiy-voice-volume.service`, and for the HA satellite `linux-voice-assistant.service` + `lva_bridge.service` |
+| `port/pipewire/` | PipeWire/WirePlumber config for the HA satellite (PipeWire over our ALSA devices) |
 | `port/tests/` | Device checks (silent by default) |
 | [`docs/`](docs/README.md) | Unmodified snapshot of Google's AIY repo (commit in `COMMIT`), the upstream for the patch; index in `docs/README.md` |
 | `cards/` | Notes for Claude Code (see `CLAUDE.md`) |

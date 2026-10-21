@@ -105,9 +105,10 @@ Voice HAT issues: the click/pop when the amp turns on, and whether `i2s-mmap` is
 - Licensing as vision-kit: `port/python/` is Apache-2.0, and there are no GPL drivers here.
 - New GitHub repo (e.g. `epatel/aiy-voice-kit`): only when you say so.
 
-### 7 · Later: what replaces the Assistant (deferred)
-Options for when you decide: the Claude API (button → STT → Claude → TTS), fully local (Vosk/whisper.cpp + Piper), or keep the card as a Wyoming
-satellite and expose the button/LED to Home Assistant. The last one fits what `lemic` already does.
+### 7 · What replaces the Assistant: a Home Assistant voice satellite
+Decided 2026-10-21 (see `cards/assistant-not-ported.md`): Linux Voice Assistant (successor of the archived `wyoming-satellite`) on PipeWire over our ALSA
+devices, plus `lva_bridge.py` for the button and LED through LVA's peripheral API. HA does speech-to-text, intents or an LLM, and TTS, in Swedish.
+`install.sh --ha-satellite`. Next: an LLM conversation agent in HA for general questions; faster Whisper (`--beam-size 1`).
 
 ## Decisions (2026-10-21)
 1. `lemic`'s current card is the baseline only (phase 0). The fresh install goes on a **second SD card**.
@@ -141,3 +142,11 @@ satellite and expose the button/LED to Home Assistant. The last one fits what `l
   deleting under `docs/aiyprojects-raspbian/`). Published 2026-10-21 as the public repo https://github.com/epatel/aiy-voice-kit. Found on the way: `Master` is missing on a fresh install, so `make test_play` failed;
   fixed with `aiy-voice-volume.service`, after which `test_play` worked through the speaker. Decision 2 (sharing with wyoming): nothing in the
   install blocks it, since `default` is dmix/dsnoop; wyoming would need `--mic-command 'arecord -D default …'`. Still undecided, not needed for this card.
+- **Phase 7 (2026-10-21)**: spike, then `install.sh --ha-satellite`.
+  - Spike: LVA on the dev card at about 4 % of one core while listening; PipeWire over `plug:softvol`/`plug:micboost` (the auto-created card disabled), so
+    ALSA `default` still records alongside. HA (2026.5.4 in Docker on `homepi`, a Pi 5 with a 32-bit userland) found it as an ESPHome device. Whisper
+    (`small-int8`, sv) and Piper (`sv_SE-nst-medium`) as containers on `homepi` (`--platform linux/arm64 --security-opt seccomp=unconfined`, run by the
+    user), a hand-built "Svenska" pipeline. "Okay Nabu, vad är klockan?" → "20:27" spoken on the kit; 5.7 s of it was Whisper.
+  - Folded in: `port/pipewire/`, `linux-voice-assistant.service`, `lva_bridge.service`, `lva_bridge.py`, `port/tests/lva_bridge_check.py`, Makefile
+    `test_bridge`/`lva_logs`. `make deploy ARGS=--ha-satellite` on the dev card (spike removed first): 3 min 16 s, reconnected to HA as the same device,
+    `status`, `test_hw`, `test_bridge` OK. Not yet: the real button/LED with LVA, a freshly flashed card with `--ha-satellite`, uninstall with the satellite.
