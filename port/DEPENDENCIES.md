@@ -12,6 +12,23 @@ Each finding is marked by how it was checked:
 - **C**: read in the upstream source. That's `aiyprojects-raspbian`, vendored at `../vision-kit/docs/aiyprojects-raspbian/` and to be copied into this repo's `docs/`.
 - **?**: not yet checked; confirm on the device (phase 2 or 3).
 
+## Status: Phase 5 install scripts (2026-10-21)
+
+- **`port/install.sh`** (run with sudo from `~/voice-kit-port`; `deploy.sh` copies `port/` there first). apt: `alsa-utils python3-venv python3-setuptools
+  python3-gpiozero python3-lgpio python3-rpi-lgpio`, then `libttspico-utils` separately (a warning, not an error, if non-free is off). Adds the user to `audio`, `gpio`.
+- **config.txt**: `dtparam=audio=on` becomes `#dtparam=audio=on  # aiy-voice-kit: …` and a `# >>> aiy-voice-kit` block adds `dtparam=i2s=on` +
+  `dtoverlay=googlevoicehat-soundcard`. Skipped if the overlay line is already there (hand setups). Backup `config.txt.orig-aiy` (`cp -n`).
+- **asound.conf**: a foreign `/etc/asound.conf` is kept as `.orig-aiy`; ours is recognised by its "AIY Voice HAT" header.
+- **Echo service**: `--echo-service` / `--no-echo-service`; with neither, a re-run keeps the current state and `ExecStart` arguments. `--echo-args` is
+  sed-escaped; `deploy.sh` quotes options with `printf %q` because macOS's bash 3.2 has no `${*@Q}`.
+- **`port/uninstall.sh`**: removes the service, `/opt/aiy`, our asound.conf (or restores the `.orig-aiy`), the config.txt block and hand-setup lines, and
+  turns `dtparam=audio=on` back on. Packages and groups stay.
+- Tested on the dev card (Trixie 64-bit): install over the hand setup → no changes; uninstall → `config.txt` identical to the pre-AIY original, onboard
+  `bcm2835 Headphones` + `vc4hdmi` after reboot; fresh install → reboot → `sndrpigooglevoi`, `make test_hw` and `make test_echo` ALL OK.
+- **Freshly flashed card** (Trixie Lite 64-bit, 6.18.50): `make deploy` took 1 min 38 s. apt installed `python3-setuptools` with 10 dependencies
+  (`python3-jaraco.*`, `python3-pkg-resources`, `python3-typeguard`…) and `libttspico-utils`/`libttspico0t64`/`libttspico-data`; everything else was
+  preinstalled. After `make reboot`: `sndrpigooglevoi`, `make test_hw` and `make test_echo` ALL OK. **Not yet**: 32-bit.
+
 ## Status: Phase 4 examples and demo service (2026-10-21)
 
 - **New `examples/voice/voice_echo_demo.py`**: push-to-talk echo with no network. Hold the button and speak; release to hear it back. LED: ON while recording,

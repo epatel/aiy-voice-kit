@@ -6,7 +6,7 @@ Which SD card is in the Pi, how to reach it, the test scripts in `port/tests/`, 
 
 | Card | Host | Kernel / Python | State |
 |---|---|---|---|
-| Trixie Lite 64-bit (development) | `pi@voice-kit.local` (DHCP gave it `192.168.68.74`) | 6.18.50 / 3.13.5 | Set up by hand per `README.md`, plus a passwordless sudoers file. Echo service installed, disabled |
+| Trixie Lite 64-bit (development) | `pi@voice-kit.local` (DHCP gave it `192.168.68.74`) | 6.18.50 / 3.13.5 | Reflashed 2026-10-21 and set up with `make deploy` alone (Imager: SSH key, passwordless sudo). Echo service disabled |
 | Bookworm 64-bit `lemic` (baseline only) | `pi@192.168.68.74` when it's in the Pi (was `192.168.0.104`) | 6.6.51 / 3.11.2 | Runs `wyoming-satellite` (a Home Assistant voice satellite) that holds the mic. **Don't change it**; stop wyoming only briefly and start it again |
 
 The Pi keeps its IP across cards, so ssh to the IP warns that the host key changed whenever the other card is in. Check `hostname` / `uname -r` before trusting a result.
@@ -21,6 +21,9 @@ SSH key auth works with `-o BatchMode=yes`. Accept a fresh card's host key with 
 | `hardware_check.py --button 15` | an arcade button press within 15 s | someone at the kit |
 | `echo_demo_check.py` | the echo demo's logic with a simulated button | silent, demo service stopped |
 | `audio_levels.py a.wav …` | peak/RMS dBFS per channel | nothing |
+
+From the Mac, `make test_hw`, `test_echo`, `test_play` and `test_button` copy the tests, stop the echo service if it's running, run the script and start the
+service again. `make status` shows the sound card, the config.txt lines, the library import and the service state.
 
 Ask before making any sound. The user has asked for low volume late in the evening (use `amixer sset Master 15%`).
 

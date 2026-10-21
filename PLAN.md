@@ -131,3 +131,9 @@ satellite and expose the button/LED to Home Assistant. The last one fits what `l
   Open: `--play`/`--button` with you present, cloudspeech 2.x.
 - **Phase 4 done (2026-10-21)** (silent tests): `voice_echo_demo.py` (push-to-talk echo) + `voice_echo_demo.service` (installed disabled). The demo logic passes
   with a simulated button. Open, with you present: the real button, speaker playback, `voice_recorder.py`/`button_led.py`, normal-voice gain.
+- **Phase 5 done (2026-10-21).** `port/install.sh`/`deploy.sh`/`uninstall.sh` + the `Makefile` (HOST defaults to `pi@voice-kit.local`).
+  On the dev card: install over the hand setup (no changes needed), service enable/keep/disable with quoted `--echo-args`, uninstall (config.txt back to the
+  original byte for byte, onboard audio after reboot), fresh install + reboot, then `status`, `test_hw`, `test_echo` all OK. **Freshly flashed Trixie Lite
+  64-bit card**: `make deploy` alone (1 min 38 s; apt added `python3-setuptools` + 10 dependencies and pico TTS) → `make reboot` → `status`, `test_hw`,
+  `test_echo` all OK. Not done: 32-bit Trixie. Decision 2 (sharing with wyoming): nothing in the
+  install blocks it, since `default` is dmix/dsnoop; wyoming would need `--mic-command 'arecord -D default …'`. Still undecided, not needed for this card.

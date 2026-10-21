@@ -37,5 +37,6 @@ Also note that `play_wav` is on `FilePlayer`, not on the base `Player`.
 
 ## Changing it
 
-Edit files under `port/python/src/`, then run `port/make-patches.sh` to regenerate `port/python.patch`. Deploy with
-`rsync -a --delete --exclude __pycache__ --exclude '*.egg-info' port/python/ pi@voice-kit.local:/opt/aiy/python/`; the editable install picks it up.
+Edit files under `port/python/src/`, then run `port/make-patches.sh` (`make patches`) to regenerate `port/python.patch`. Deploy with `make deploy`, which
+copies the tree to `/opt/aiy/python` and re-runs the editable install. For a quick iteration,
+`rsync -a --delete --exclude __pycache__ --exclude '*.egg-info' port/python/ pi@voice-kit.local:/opt/aiy/python/` is enough; the editable install picks it up.

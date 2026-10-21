@@ -4,17 +4,16 @@
 
 A port of Google's AIY Voice Kit v1 software (Raspberry Pi 3 B + Voice HAT: I2S mics, amp, arcade button with LED) to Raspberry Pi OS Lite **Trixie** 64-bit
 (kernel 6.18, Python 3.13). The kernel side is stock: the in-tree `googlevoicehat-soundcard` overlay. The work is an ALSA config, the Voice HAT parts of the
-`aiy` Python library in a venv, a push-to-talk demo service, and (phase 5) install scripts. `PLAN.md` holds the phases, decisions and progress; read it when
+`aiy` Python library in a venv, a push-to-talk demo service, and install scripts. `PLAN.md` holds the phases, decisions and progress; read it when
 continuing phase work. `port/DEPENDENCIES.md` records every change and test result. `README.md` is for people.
 
 ## Commands
 
-There's no Makefile yet (phase 5). Run from the repo root on the Mac; the dev card is `pi@voice-kit.local`.
-- Regenerate the patch after editing `port/python/src/` (a hook does it for Claude's edits): `port/make-patches.sh`
-- Deploy the library: `rsync -a --delete --exclude __pycache__ --exclude '*.egg-info' port/python/ pi@voice-kit.local:/opt/aiy/python/`
-- Copy the tests: `rsync -a port/tests/ pi@voice-kit.local:voice-kit-port/tests/`
-- Silent device check: `ssh pi@voice-kit.local 'cd ~; /opt/aiy/venv/bin/python voice-kit-port/tests/hardware_check.py'` (add `--play`, `--button 15` with someone there)
-- Echo demo logic: the same with `echo_demo_check.py`
+Run from the repo root on the Mac; `make` alone shows the numbered menu. `HOST` defaults to the dev card `pi@voice-kit.local`.
+- Install/update the Pi: `make deploy` (`ARGS="--echo-service"` etc. go to `port/install.sh`), then `make reboot` if it says so
+- Silent checks: `make status test_hw test_echo`. With someone at the kit: `make test_play`, `make test_button`, `make say TEXT="…"`
+- Regenerate `port/python.patch`: `make patches` (a hook does it after Claude's edits to `port/python/src/`)
+- Check the agent docs: `make check_docs`. Remove everything from the Pi: `make uninstall`
 
 ## Cards
 
@@ -27,6 +26,7 @@ There's no Makefile yet (phase 5). Run from the repo root on the Mac; the dev ca
 
 ### Features
 - [echo-demo](cards/echo-demo.md) — the push-to-talk echo demo or its systemd service, button press/release timing, LED states
+- [install-and-deploy](cards/install-and-deploy.md) — changing install.sh/deploy.sh/uninstall.sh or the Makefile, what install touches on the Pi (config.txt, asound.conf, /opt/aiy, the service), re-runs and uninstall
 - [testing-on-device](cards/testing-on-device.md) — before running anything on the Pi: which card is in it, hosts and host keys, test scripts, ssh/pkill/grep traps, when sound is OK
 
 ### Decisions

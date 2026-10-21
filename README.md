@@ -4,12 +4,13 @@ Goal: run the [Google AIY Voice Kit v1](https://aiyprojects.withgoogle.com/voice
 a mono amplifier and an arcade button with LED) on **Raspberry Pi OS Lite Trixie** (kernel 6.18, Python 3.13), instead of Google's 2017
 image (Raspbian Jessie, pi-gen 2017-07-05, Python 3.4).
 
-Status (2026-10-21): **phases 0–4 done** (see [`PLAN.md`](PLAN.md)).
+Status (2026-10-21): **phases 0–5 done** (see [`PLAN.md`](PLAN.md)).
 - On Trixie 64-bit the Voice HAT records and plays through the stock kernel overlay. The ALSA config gives volume, mic gain and shared access.
 - The `aiy` Python library's Voice HAT parts (button, LED, audio, text-to-speech) run in a venv. Two Trixie breaks are fixed.
 - A push-to-talk echo demo can run at boot.
+- `make deploy` sets up a card from the Mac in one step; `make uninstall` reverses it.
 
-Tested silently so far; speaker playback and the real button still need a check by ear and hand. The install script (phase 5) isn't written yet.
+Tested silently so far; speaker playback and the real button still need a check by ear and hand.
 
 ## Why it isn't just `apt upgrade`
 
@@ -30,22 +31,30 @@ Tested silently so far; speaker playback and the real button still need a check 
 | [`port/DEPENDENCIES.md`](port/DEPENDENCIES.md) | Every dependency checked against Trixie, with test results per phase |
 | `port/alsa/asound.conf` | ALSA config installed as `/etc/asound.conf` |
 | `port/python/` | The Voice HAT parts of Google's `aiy` library, with this port's fixes (`port/python.patch` is the diff against upstream) |
+| `Makefile` | Numbered menu (`make`) for deploy, status, tests, patches, uninstall. `HOST=` picks the Pi |
+| `port/install.sh`, `deploy.sh`, `uninstall.sh` | Install on the Pi, copy + install from the Mac, remove |
 | `port/systemd/` | `voice_echo_demo.service` |
 | `port/tests/` | Device checks (silent by default) |
 | `docs/aiyprojects-raspbian/` | Unmodified snapshot of Google's AIY repo (commit in `COMMIT`), the upstream for the patch |
 | `cards/` | Notes for Claude Code (see `CLAUDE.md`) |
 | `vendor/` | Baseline logs, recordings and the 2017 image backup. Kept out of git |
 
-## Manual setup (until `install.sh` exists)
+## Install
 
-On a Pi 3 with the Voice HAT and a fresh Raspberry Pi OS Lite 64-bit (Trixie) card:
+On a Pi 3 with the Voice HAT and a fresh Raspberry Pi OS Lite 64-bit (Trixie) card, with SSH key login and passwordless sudo
+(Raspberry Pi Imager sets both up for the first user):
 
-1. In `/boot/firmware/config.txt`, comment out `dtparam=audio=on` and add `dtparam=i2s=on` and `dtoverlay=googlevoicehat-soundcard`. Then copy
-   `port/alsa/asound.conf` to `/etc/asound.conf` and reboot.
-2. Run `sudo apt install python3-setuptools libttspico-utils` (`python3-rpi-lgpio` and `gpiozero` are preinstalled).
-3. Copy `port/python/` to `/opt/aiy/python`, then run `python3 -m venv --system-site-packages /opt/aiy/venv` and
-   `/opt/aiy/venv/bin/pip install --no-index --no-build-isolation -e /opt/aiy/python`.
-4. Check it with `/opt/aiy/venv/bin/python port/tests/hardware_check.py`, adding `--play` for the speaker and `--button 15` for the button.
+```bash
+make deploy HOST=pi@voice-kit.local                      # add ARGS=--echo-service to start the echo demo at boot
+make reboot HOST=pi@voice-kit.local                      # config.txt changed: the Voice HAT appears after a reboot
+make status test_hw test_echo HOST=pi@voice-kit.local    # silent checks
+make test_play                                           # through the speaker, at 20 % volume
+```
+
+`port/install.sh` (run on the Pi by `deploy.sh`) installs the apt packages, comments out the onboard audio and adds the overlay in `config.txt`
+(in a marked block), installs `/etc/asound.conf`, puts the library in `/opt/aiy/python` with a venv in `/opt/aiy/venv`, and installs the echo
+demo service (disabled unless `--echo-service`; `--echo-args "…"` passes options such as `--greeting Hello`). It is safe to re-run.
+`make uninstall` removes all of it and turns the onboard audio back on; apt packages stay.
 
 ## Licensing
 
