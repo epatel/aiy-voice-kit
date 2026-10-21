@@ -1,3 +1,5 @@
+<a href="https://claude.ai"><img src="made-with-claude.png" height="32" alt="Made with Claude"></a>
+
 # AIY Voice Kit v1 on a current Raspberry Pi OS (Trixie)
 
 Goal: run the [Google AIY Voice Kit v1](https://aiyprojects.withgoogle.com/voice-v1/) (Raspberry Pi 3 B + **Voice HAT**: two I2S MEMS mics,
