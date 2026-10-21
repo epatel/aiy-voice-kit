@@ -5,7 +5,7 @@
 A port of Google's AIY Voice Kit v1 software (Raspberry Pi 3 B + Voice HAT: I2S mics, amp, arcade button with LED) to Raspberry Pi OS Lite **Trixie** 64-bit
 (kernel 6.18, Python 3.13). The kernel side is stock: the in-tree `googlevoicehat-soundcard` overlay. The work is an ALSA config, the Voice HAT parts of the
 `aiy` Python library in a venv, a push-to-talk demo service, and install scripts. `PLAN.md` holds the phases, decisions and progress; read it when
-continuing phase work. `port/DEPENDENCIES.md` records every change and test result. `README.md` is for people.
+continuing phase work. `port/DEPENDENCIES.md` records every change and test result. `README.md` and `port/README.md` (install guide, known gaps) are for people.
 
 ## Commands
 

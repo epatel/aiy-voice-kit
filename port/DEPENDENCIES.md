@@ -25,6 +25,10 @@ Each finding is marked by how it was checked:
   turns `dtparam=audio=on` back on. Packages and groups stay.
 - Tested on the dev card (Trixie 64-bit): install over the hand setup → no changes; uninstall → `config.txt` identical to the pre-AIY original, onboard
   `bcm2835 Headphones` + `vc4hdmi` after reboot; fresh install → reboot → `sndrpigooglevoi`, `make test_hw` and `make test_echo` ALL OK.
+- **`Master` missing on a fresh install**: `make test_play` failed with `amixer: Unable to find simple control 'Master'` because nothing had played yet.
+  New `port/systemd/aiy-voice-volume.service` (oneshot, after `alsa-restore`): if `Master` is missing, play 1 s of zeros through `default` and set 30 %.
+  `alsa-restore` stores/restores it after that; a 25 % setting survived a reboot untouched. Then `make test_play` (recording + TTS through the
+  speaker at 20 %) worked, as heard by the user.
 - **Freshly flashed card** (Trixie Lite 64-bit, 6.18.50): `make deploy` took 1 min 38 s. apt installed `python3-setuptools` with 10 dependencies
   (`python3-jaraco.*`, `python3-pkg-resources`, `python3-typeguard`…) and `libttspico-utils`/`libttspico0t64`/`libttspico-data`; everything else was
   preinstalled. After `make reboot`: `sndrpigooglevoi`, `make test_hw` and `make test_echo` ALL OK. **Not yet**: 32-bit.

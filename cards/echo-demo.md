@@ -29,4 +29,4 @@ Options: `--min_seconds`, `--max_seconds` (15), `--greeting TEXT` (said once at 
 ## Tests
 
 `port/tests/echo_demo_check.py` runs `echo_once` with a simulated button and plays to `null`. Expected results: a 2 s press records ~1.75 s and plays it (LED ON > PULSE_QUICK > OFF);
-a 0.2 s tap is ignored (ON > OFF); a held press is cut at 3 s. The real button and speaker haven't been tried yet.
+a 0.2 s tap is ignored (ON > OFF); a held press is cut at 3 s. The speaker works (`make test_play`); the real button with the demo hasn't been tried yet.

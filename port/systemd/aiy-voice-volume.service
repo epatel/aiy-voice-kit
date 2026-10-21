@@ -1,0 +1,15 @@
+[Unit]
+Description=AIY Voice HAT: create the Master volume control
+# softvol only creates "Master" on the first playback through it. alsa-restore
+# brings it back on later boots (alsactl stores it at shutdown), so this only
+# plays when it's missing: 1 s of silence, then a moderate starting volume.
+After=sound.target alsa-restore.service
+ConditionPathExistsGlob=/dev/snd/control*
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -c 'amixer -q get Master >/dev/null 2>&1 && exit 0; aplay -q -D default -t raw -f S16_LE -r 48000 -c 2 -d 1 /dev/zero && amixer -q sset Master @VOLUME@'
+
+[Install]
+WantedBy=multi-user.target

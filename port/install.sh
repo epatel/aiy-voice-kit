@@ -79,6 +79,14 @@ if [[ -f /etc/asound.conf ]] && ! cmp -s /etc/asound.conf "$SRC_DIR/alsa/asound.
   cp -n /etc/asound.conf /etc/asound.conf.orig-aiy
 fi
 install -m 644 "$SRC_DIR/alsa/asound.conf" /etc/asound.conf
+# The Master control only exists after the first playback; this service creates it at boot when it's missing.
+# %% is systemd's escape for a literal %.
+sed -e "s|@VOLUME@|30%%|" "$SRC_DIR/systemd/aiy-voice-volume.service" > /etc/systemd/system/aiy-voice-volume.service
+systemctl daemon-reload
+systemctl enable aiy-voice-volume.service
+if aplay -l 2>/dev/null | grep -q sndrpigooglevoi; then
+  systemctl restart aiy-voice-volume.service
+fi
 
 log "Installing the Python library into /opt/aiy/venv"
 install -d /opt/aiy/python

@@ -7,8 +7,8 @@ set -euo pipefail
 [[ $EUID -eq 0 ]] || { echo "run with sudo" >&2; exit 1; }
 CONFIG_TXT=/boot/firmware/config.txt
 
-systemctl disable --now voice_echo_demo.service 2>/dev/null || true
-rm -f /etc/systemd/system/voice_echo_demo.service
+systemctl disable --now voice_echo_demo.service aiy-voice-volume.service 2>/dev/null || true
+rm -f /etc/systemd/system/voice_echo_demo.service /etc/systemd/system/aiy-voice-volume.service
 systemctl daemon-reload
 
 rm -rf /opt/aiy

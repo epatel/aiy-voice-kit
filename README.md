@@ -4,13 +4,13 @@ Goal: run the [Google AIY Voice Kit v1](https://aiyprojects.withgoogle.com/voice
 a mono amplifier and an arcade button with LED) on **Raspberry Pi OS Lite Trixie** (kernel 6.18, Python 3.13), instead of Google's 2017
 image (Raspbian Jessie, pi-gen 2017-07-05, Python 3.4).
 
-Status (2026-10-21): **phases 0–5 done** (see [`PLAN.md`](PLAN.md)).
+Status (2026-10-21): **phases 0–6 done** (see [`PLAN.md`](PLAN.md)).
 - On Trixie 64-bit the Voice HAT records and plays through the stock kernel overlay. The ALSA config gives volume, mic gain and shared access.
 - The `aiy` Python library's Voice HAT parts (button, LED, audio, text-to-speech) run in a venv. Two Trixie breaks are fixed.
 - A push-to-talk echo demo can run at boot.
 - `make deploy` sets up a card from the Mac in one step; `make uninstall` reverses it.
 
-Tested silently so far; speaker playback and the real button still need a check by ear and hand.
+Speaker playback is checked by ear; the real button still needs a check by hand.
 
 ## Why it isn't just `apt upgrade`
 
@@ -28,6 +28,7 @@ Tested silently so far; speaker playback and the real button still need a check 
 | Path | Contents |
 |---|---|
 | [`PLAN.md`](PLAN.md) | Phases, decisions and progress |
+| [`port/README.md`](port/README.md) | Install guide and known gaps |
 | [`port/DEPENDENCIES.md`](port/DEPENDENCIES.md) | Every dependency checked against Trixie, with test results per phase |
 | `port/alsa/asound.conf` | ALSA config installed as `/etc/asound.conf` |
 | `port/python/` | The Voice HAT parts of Google's `aiy` library, with this port's fixes (`port/python.patch` is the diff against upstream) |
@@ -35,14 +36,14 @@ Tested silently so far; speaker playback and the real button still need a check 
 | `port/install.sh`, `deploy.sh`, `uninstall.sh` | Install on the Pi, copy + install from the Mac, remove |
 | `port/systemd/` | `voice_echo_demo.service` |
 | `port/tests/` | Device checks (silent by default) |
-| `docs/aiyprojects-raspbian/` | Unmodified snapshot of Google's AIY repo (commit in `COMMIT`), the upstream for the patch |
+| [`docs/`](docs/README.md) | Unmodified snapshot of Google's AIY repo (commit in `COMMIT`), the upstream for the patch; index in `docs/README.md` |
 | `cards/` | Notes for Claude Code (see `CLAUDE.md`) |
 | `vendor/` | Baseline logs, recordings and the 2017 image backup. Kept out of git |
 
 ## Install
 
-On a Pi 3 with the Voice HAT and a fresh Raspberry Pi OS Lite 64-bit (Trixie) card, with SSH key login and passwordless sudo
-(Raspberry Pi Imager sets both up for the first user):
+On a Pi 3 with the Voice HAT and a fresh Raspberry Pi OS Lite 64-bit (Trixie) card, with SSH key login and passwordless sudo.
+[`port/README.md`](port/README.md) has the full guide: preparing the card, options, what gets installed, using it, and the known gaps.
 
 ```bash
 make deploy HOST=pi@voice-kit.local                      # add ARGS=--echo-service to start the echo demo at boot

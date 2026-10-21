@@ -18,8 +18,10 @@ The Voice HAT's ALSA setup (`port/alsa/asound.conf` → `/etc/asound.conf`): dev
 | `micboost` | `route` with ×4 on both channels over dsnoop |
 | `pcm.!default` | `asym`: `plug:softvol` for playback, `plug:micboost` for capture |
 
-`Master` **appears only after the first playback through `default`**, so anything that sets the volume must play something first (even 1 s of silence).
-Google's 2017 image had an `alsa-init.service` for this.
+`Master` **appears only after the first playback through `default`**, so `amixer sset Master` fails on a fresh install ("Unable to find simple control",
+seen with `make test_play` on the freshly flashed card). `aiy-voice-volume.service` (installed and enabled by install.sh, like Google's 2017 `alsa-init.service`)
+fixes it: at boot, after `alsa-restore`, if `Master` is missing it plays 1 s of zeros through `default` and sets 30 %. Once `Master` exists, `alsa-restore` stores it
+at shutdown and restores it at boot, so a user's volume survives reboots (checked: 25 % before → 25 % after).
 
 ## Mic gain: why ×4
 
